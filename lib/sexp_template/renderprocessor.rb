@@ -44,7 +44,7 @@ module SexpTemplate
         return process(node) unless key.type == :sym
         options[key.to_a[0]] = process(value)
       end
-      template.render(@scope, @options.merge(options))
+      template.render(@scope, options)
     end
   end
 end
