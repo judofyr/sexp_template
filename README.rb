@@ -2,17 +2,6 @@
 # SexpTemplate, Sexp as Ruby
 #
 
-=begin NOTE:
-
-I'm just pushing the latest changes out before I'll go on
-holiday, so at the moment it's not working 100% correctly.
-
-Should work on 1.8 at least. 1.9 support + tests are coming later!
-
-=end
-
-
-
 puts %q{
 
   SexpTemplate is an Sexp template engine with replacement variables, uniquely
