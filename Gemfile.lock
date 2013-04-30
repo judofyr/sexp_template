@@ -1,0 +1,26 @@
+PATH
+  remote: .
+  specs:
+    sexp_template (0.5.0)
+      ast (~> 1.0)
+      parser (~> 1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ast (1.0.2)
+    minitest (4.7.3)
+    parser (1.3.0)
+      ast (~> 1.0)
+      slop (~> 3.4)
+    rake (0.9.6)
+    slop (3.4.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 1.2)
+  minitest (~> 4.7.0)
+  rake (~> 0.9)
+  sexp_template!

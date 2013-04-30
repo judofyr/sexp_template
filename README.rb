@@ -22,7 +22,8 @@ puts %q{
 
 }
 
-require 'lib/sexp_template'
+$LOAD_PATH << 'lib'
+require 'sexp_template'
 
 class Example
   include SexpTemplate
@@ -45,7 +46,7 @@ class Example
   
   # And call #render(template, variables)
   pp example.render(:basic,
-       :content => s(:call, s(:lit, 1), :+, s(:arglist, s(:lit, 2))),
+       :content => s(:send, s(:int, 1), :+, s(:args, s(:int, 2))),
        :something => s(:str, "a, b, c"))
   
   # Then the result would be the Sexp equivalent to this code:
@@ -114,8 +115,6 @@ class Notes
   warn "This is a little hackish ..."
 
   puts "... but it works on 1.9"
-  puts "... and it works on 1.8"
-  puts
   puts "... as long as you follow these rules:"
   puts
 
@@ -130,42 +129,8 @@ class Notes
 end
 
 puts
-puts "# Ready for the dependencies?"
-gets
-
-class Dependencies
-  Deps = ["sexp_processor"]
-  
-  if RUBY_VERSION > '1.9'
-    Deps << "ruby_parser"
-  else
-    Deps << "parse_tree"
-  end
-  
-  puts "You need: #{Deps * ', '}" 
-  puts
-  puts "However, you can also do this:"
-  puts "  ~> bin/sexp_template_compiler README.rb > templates.stc"
-  puts
-
-  class Example
-    # If templates.stc doesn't exist, it will fallback to parse_tree or
-    # ruby_parser. Simply generate it when your building your gem/release.
-    templates { "templates.stc" }
-    
-    template :basic do
-      # blah blah blah
-    end
-    
-    # and the rest of your templates...
-  end
-  
-  puts "Then your templates have no other dependencies than sexp_template."
-end
-
-puts
 puts "And that's mostly it."
 
 # pretty printing please!
-BEGIN { require 'pp' }  
+BEGIN { require 'pp'; require 'ast/sexp'; include AST::Sexp }  
 

@@ -1,14 +1,10 @@
 $:.unshift File.dirname(__FILE__)
 
-require 'rubygems'
-require 'sexp_processor'
-
 module SexpTemplate
   autoload :Template,        'sexp_template/template'
   autoload :PreProcessor,    'sexp_template/preprocessor'
   autoload :RenderProcessor, 'sexp_template/renderprocessor'
-  
-  CallRequired = Class.new(StandardError)
+  autoload :BlockExtractor,  'sexp_template/block_extractor'
   
   module ClassMethods
     def templates
@@ -22,10 +18,6 @@ module SexpTemplate
   
   def self.included(mod)
     mod.extend ClassMethods
-  end
-  
-  def self.copy(sexp)
-    Marshal.load(Marshal.dump(sexp))
   end
   
   def initialize

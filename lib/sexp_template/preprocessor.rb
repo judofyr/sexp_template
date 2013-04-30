@@ -1,69 +1,55 @@
+require 'parser/ast/processor'
+require 'ast/sexp'
+
 module SexpTemplate
-  class PreProcessor < SexpProcessor
-    def initialize(processor_class, tmp)
+  class PreProcessor < Parser::AST::Processor
+    include AST::Sexp
+
+    def initialize(templates, tmp)
       super()
       @tmp = tmp
-      @processor_class = processor_class
+      @templates = templates
     end
-    
-    def process_call(exp)
-      type = exp.shift
-      receiver = process(exp.shift)
-      name = exp.shift
-      args = process(exp.shift)
-      
-      exp = s(type, receiver, name, args)
-      
-      case
-      when template = matches_template?(name, args)
-        s(:sexp_template, :template, template, args)
-      when name = matches_variable?(name, args)
-        s(:sexp_template, :call, name, exp)
-      else
-        exp
-      end 
+
+    def matches_variable?(name, args)
+      args.length == 0 and
+      name.to_s[-1] == ?! and
+      name.to_s[0..-2].to_sym
     end
-    
-    def process_local_variables(exp)
-      type = exp.shift
-      name = exp.shift
-      value = process(exp.shift)
-      
-      if matches_tmp?(name)
-        s(:sexp_template, :local_variables, type, name, value)
+
+    def matches_template?(name, args)
+      args.length == 1 and
+      args[0].type == :hash and
+      @templates[name]
+    end
+
+    def on_send(node)
+      node = super(node)
+      receiver, name, *args = *node
+      if var = matches_variable?(name, args)
+        s(:sexp_template, :variable, var, node)
+      elsif template = matches_template?(name, args)
+        s(:sexp_template, :template, template, args[0], node)
       else
-        s(type, name, value).compact
+        node
       end
     end
-    
-    alias process_lvar process_local_variables
-    alias process_lasgn process_local_variables
     
     def matches_tmp?(name)
       @tmp.include?(name)
     end
-    
-    def matches_template?(name, args)
-      (args.length == 1 or
-      args[1][0]  == :hash) and
-      @processor_class.templates[name]
+
+    def on_lvasgn(node)
+      node = super(node)
+
+      name, *rest = *node
+      if matches_tmp?(name)
+        s(:sexp_template, :tmp, name, node)
+      else
+        node
+      end
     end
-    
-    def symargs?(args)
-      args.length == 2 and
-      args[1].sexp_type == :hash and
-      args[1].sexp_body.all? { |key, value| sym?(key) }
-    end
-    
-    def sym?(exp)
-      exp.sexp_type == :lit and
-      exp.sexp_body.is_a?(Symbol)
-    end
-    
-    def matches_variable?(name, args)
-      args.length == 1 and
-      name.to_s[-1] == ?! and
-      name.to_s[0..-2].to_sym
-    end
+
+    alias on_lvar on_lvasgn
   end
 end
